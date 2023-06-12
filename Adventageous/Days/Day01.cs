@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Adventageous.Extensions;
 
 namespace Adventageous.Days
 {
 	public class Day01
 	{
-		private readonly List<List<int>> inventories = new List<List<int>>();
+		private readonly List<List<int>> inventories = new ();
 
 		public Day01(Stream input)
 		{
@@ -27,13 +28,23 @@ namespace Adventageous.Days
 					inventory.Add(value);
 				}
 				while (!reader.EndOfStream);
+				
+				inventories.Add(inventory);
 			}
 			while (!reader.EndOfStream);
 		}
 
-		private static int Sum(ICollection<int> collection)
+		public int First()
 		{
-			return collection.Aggregate(0, (x, y) => x + y);
+			return inventories.Select(x => x.Total()).Max();
+		}
+
+		public int Second()
+		{
+			return inventories.Select(x => x.Total())
+				.OrderDescending()
+				.Take(3)
+				.Total();
 		}
 	}
 }

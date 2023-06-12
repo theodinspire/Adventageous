@@ -1,13 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System.Numerics;
 
-namespace Adventageous.Extentions
+namespace Adventageous.Extensions
 {
 	public static class NumericCollections
 	{
-		public static TNumber Total<TNumber>(this ICollection<TNumber> self)
-			where TNumber : System.Numerics.IAdditiveIdentity<TNumber, TNumber>, IAdditionOperators<TNumber, TNumber, TNumber>
+		public static TNumber Total<TNumber>(this IEnumerable<TNumber> self)
+			where TNumber : IAdditiveIdentity<TNumber, TNumber>, IAdditionOperators<TNumber, TNumber, TNumber>
 		{
-			
+			return self.Aggregate(TNumber.AdditiveIdentity, (left, right) => left + right);
 		}
 	}
 }
