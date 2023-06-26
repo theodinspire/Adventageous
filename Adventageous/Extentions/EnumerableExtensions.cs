@@ -10,7 +10,7 @@ public static class EnumerableExtensions
 			yield return GroupIntoHelper(enumerator, count);
 		}
 	}
-	
+
 	private static IEnumerable<T> GroupIntoHelper<T>(IEnumerator<T> enumerator, int count)
 	{
 		do
@@ -20,4 +20,7 @@ public static class EnumerableExtensions
 		}
 		while ( count > 0 && enumerator.MoveNext());
 	}
+
+	public static IEnumerable<T> SelectNotNull<T>(this IEnumerable<T?> self) where T : struct =>
+		self.Where(x => x.HasValue).Select(x => x.Value);
 }
