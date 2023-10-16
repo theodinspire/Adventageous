@@ -8,9 +8,9 @@ public struct Point
 		this.Y = y;
 	}
 	
-	public int X;
+	public readonly int X;
 	
-	public int Y;
+	public readonly int Y;
 
 	public override int GetHashCode()
 	{
@@ -33,6 +33,17 @@ public struct Point
 	#region Constant Points
 	
 	public static readonly Point Origin = new(0, 0);
+
+	#endregion
+
+	#region Relative Points
+
+	public Point Up    => new Point(this.X, this.Y + 1);
+	public Point Down  => new Point(this.X, this.Y - 1);
+	public Point Left  => new Point(this.X - 1, this.Y);
+	public Point Right => new Point(this.X + 1, this.Y);
+
+	public Point[] TaxiCabNeighbors => new[] { this.Up, this.Right, this.Down, this.Left };
 
 	#endregion
 }
