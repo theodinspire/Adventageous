@@ -1,4 +1,6 @@
-﻿namespace Adventageous.DataModel;
+﻿using Adventageous.Enums;
+
+namespace Adventageous.DataModel;
 
 public struct Point
 {
@@ -44,6 +46,15 @@ public struct Point
 	public Point Right => new Point(this.X + 1, this.Y);
 
 	public Point[] TaxiCabNeighbors => new[] { this.Up, this.Right, this.Down, this.Left };
+
+	public Point this[Direction direction] => direction switch
+	{
+		Direction.Up    => this.Up,
+		Direction.Down  => this.Down,
+		Direction.Left  => this.Left,
+		Direction.Right => this.Right,
+		_ => throw new ArgumentOutOfRangeException(nameof(direction), direction, null)
+	};
 
 	#endregion
 }
