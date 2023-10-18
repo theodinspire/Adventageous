@@ -1,5 +1,5 @@
 ﻿using System.Text.RegularExpressions;
-using Adventageous.DataModel;
+using Adventageous.DataStructure;
 using Adventageous.Enums;
 using Adventageous.Extensions;
 

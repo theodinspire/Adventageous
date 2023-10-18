@@ -1,4 +1,4 @@
-﻿using Adventageous.DataModel;
+﻿using Adventageous.DataStructure;
 
 namespace Adventageous.Days;
 
@@ -66,8 +66,8 @@ public class Day12
 			var elevation = this.Elevation[current];
 			var cost = this.Cost[current] + 1;
 			var next = current.TaxiCabNeighbors
-				.Where(x => !this.Cost.Mapped.Contains(x))
-				.Where(x => this.Elevation.Mapped.Contains(x))
+				.Where(x => !this.Cost.Keys.Contains(x))
+				.Where(x => this.Elevation.Keys.Contains(x))
 				.Where(x => this.Elevation[x] <= elevation + 1)
 				.ToHashSet();
 
@@ -100,8 +100,8 @@ public class Day12
 			if (elevation == 0) return cost;
 
 			var next = current.TaxiCabNeighbors
-				.Where(x => !this.Cost.Mapped.Contains(x))
-				.Where(x => this.Elevation.Mapped.Contains(x))
+				.Where(x => !this.Cost.Keys.Contains(x))
+				.Where(x => this.Elevation.Keys.Contains(x))
 				.Where(x => this.Elevation[x] >= elevation - 1)
 				.ToHashSet();
 
