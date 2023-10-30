@@ -8,7 +8,7 @@ namespace Adventageous.Days
 {
 	public class Day01
 	{
-		private readonly List<List<int>> inventories = new ();
+		private readonly List<List<int>> inventories = new List<List<int>>();
 
 		public Day01(Stream input)
 		{

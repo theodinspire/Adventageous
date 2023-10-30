@@ -140,4 +140,30 @@ public readonly struct Point : IEquatable<Point>
 	}
 
 	#endregion
+
+	#region Comparisons
+
+	/// <summary>
+	/// Determines the <a href="https://en.wikipedia.org/wiki/Taxicab_geometry">Manhattan Distance</a> between this and another point.
+	/// </summary>
+	/// <param name="that">The other point.</param>
+	/// <returns>Their Manhattan Distance.</returns>
+	public int ManhattanDistance(Point that) =>
+		ManhattanDistance(this, that);
+
+	/// <summary>
+	/// Determines the <a href="https://en.wikipedia.org/wiki/Taxicab_geometry">Manhattan Distance</a> between two points.
+	/// </summary>
+	/// <param name="left">One point</param>
+	/// <param name="right">The other point</param>
+	/// <returns>Their Manhattan Distance.</returns>
+	public static int ManhattanDistance(Point left, Point right)
+	{
+		var h = Math.Abs(left.X - right.X);
+		var v = Math.Abs(left.Y - right.Y);
+
+		return h + v;
+	}
+
+	#endregion
 }
