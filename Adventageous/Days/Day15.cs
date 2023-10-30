@@ -40,14 +40,54 @@ public partial class Day15
 			.Count(p => this.Sensors.Any(s => s.WithinBeaconDistance(p)));
 	}
 
-	public int Second(int maxDimension)
+	public long Second(int maxDimension)
 	{
+		IEnumerable<Point> PointsJustOutside(Sensor sensor)
+		{
+			var d = sensor.BeaconRadius + 1;
+			var center = sensor.Location;
+			yield return center + (d, 0);
+			yield return center + (0, d);
+			yield return center - (d, 0);
+			yield return center - (0, d);
 
+			foreach (var dx in Interval.HalfOpen(1, d))
+			{
+				var dy = d - dx;
+				yield return center + ( dx,  dy);
+				yield return center + (-dx,  dy);
+				yield return center + ( dx, -dy);
+				yield return center + (-dx, -dy);
+			}
+		}
 
+		bool IsInRange(Point point)
+		{
+			if (point.X < 0 || point.Y < 0) return false;
+			return point.X <= maxDimension && point.Y <= maxDimension;
+		}
 
-		var point = Point.Origin;
-		return (point.X * 4_000_000) + point.Y;
+		bool IsOutsideAllRanges(Point point)
+			=> !Sensors.Any(s => s.WithinBeaconDistance(point));
+
+		var point = Sensors
+			.SelectMany(PointsJustOutside)
+			.Where(IsInRange)
+			.Where(IsOutsideAllRanges)
+			.FirstOrDefault();
+
+		Console.WriteLine(point);
+		foreach (var sensor in Sensors)
+		{
+			if (sensor.WithinBeaconDistance(point))
+				Console.WriteLine($"Point covered by sensor at {sensor.Location}");
+		}
+
+		return GetPointFrequency(point);
 	}
+
+	private static long GetPointFrequency(Point point) =>
+		(point.X * 4_000_000L) + point.Y;
 
 	private partial class Sensor
 	{
