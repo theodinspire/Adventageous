@@ -11,7 +11,7 @@ public class Day17
 	private readonly RockGenerator generator = new RockGenerator();
 	private readonly Shaft shaft;
 
-	private int step = 0;
+	private long step = 0;
 
 	public Day17(Stream input)
 	{
@@ -33,16 +33,14 @@ public class Day17
 		return this.shaft.Height;
 	}
 
-	public int Second()
+	public long Second()
 	{
-
-
-		return int.MinValue;
+		return long.MinValue;
 	}
 
 	private void Iterate()
 	{
-		var index = step++ % this.Jets.Count;
+		var index = (int)(step++ % this.Jets.Count);
 		this.shaft.Step(this.Jets[index]);
 	}
 
