@@ -23,9 +23,9 @@ public class Grid<T> : IEnumerable<KeyValuePair<Point, T>>
 	}
 
 	public T Get(Point point, T defaultValue) =>
-		this.TryGetValue(point, out var t) ? t : defaultValue;
+		this.TryGetValue(point, out var t) ? t! : defaultValue;
 
-	public bool TryGetValue(Point point, out T t) =>
+	public bool TryGetValue(Point point, out T? t) =>
 		this.data.TryGetValue(point, out t);
 
 	public ICollection<Point> Keys => this.data.Keys;

@@ -20,7 +20,7 @@ public class Day10
 			var line = reader.ReadLine();
 			if (line is null) continue;
 
-			Instruction instruction = line[..4] switch
+			Instruction? instruction = line[..4] switch
 			{
 				NoOperationCode => new NoOperation(),
 				AdditionCode => new Add(int.Parse(line[5..])),

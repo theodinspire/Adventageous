@@ -17,7 +17,7 @@ public class Day09
 		
 		while (!reader.EndOfStream)
 		{
-			list.Add(Instruction.From(reader.ReadLine()));
+			list.Add(Instruction.From(reader.ReadLine()!));
 		}
 
 		this.instructions = list.SelectNotNull().ToList();

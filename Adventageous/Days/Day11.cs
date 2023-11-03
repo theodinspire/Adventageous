@@ -91,7 +91,7 @@ public class Day11
 
 		private readonly int targetIfFalse;
 
-		private Troop troop;
+		private Troop? troop;
 
 		public Monkey(
 			int index,
@@ -124,7 +124,7 @@ public class Day11
 		public void Toss(long item)
 		{
 			var inspected = this.operation.Compile()(item);
-			var relieved = this.troop.GetRelief(inspected);
+			var relieved = this.troop!.GetRelief(inspected);
 			var target = (relieved % this.testQuotient == 0)
 				? this.targetIfTrue
 				: this.targetIfFalse;
@@ -192,7 +192,7 @@ public class Day11
 			return troop;
 		}
 
-		private static Monkey CreateMonkey(Match match)
+		private static Monkey? CreateMonkey(Match match)
 		{
 			if (!int.TryParse(match.Groups["index"].Value, out var index))
 				return null;
@@ -200,8 +200,6 @@ public class Day11
 			var operation = GetOperation(
 				match.Groups["operator"].Value,
 				match.Groups["operand"].Value);
-			if (operation is null)
-					return null;
 
 			if (!long.TryParse(match.Groups["quotient"].Value, out var quotient))
 				return null;
@@ -242,7 +240,7 @@ public class Day11
 			{
 				"+" => old => old + old,
 				"*" => old => old * old,
-				_ => null
+				_ => throw new InvalidOperationException("Cannot parse operation")
 			};
 		}
 
@@ -250,14 +248,14 @@ public class Day11
 		{
 			if (!long.TryParse(operand, out var value))
 			{
-				return null;
+				throw new InvalidOperationException("Cannot parse operation");
 			}
 
 			return operation switch
 			{
 				"+" => old => old + value,
 				"*" => old => old * value,
-				_ => null
+				_ => throw new InvalidOperationException("Cannot parse operation")
 			};
 		}
 	}

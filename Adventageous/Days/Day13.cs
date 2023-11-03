@@ -10,8 +10,8 @@ public class Day13
 
 		while (!reader.EndOfStream)
 		{
-			var left = Parse(reader.ReadLine());
-			var right = Parse(reader.ReadLine());
+			var left = Parse(reader.ReadLine()!);
+			var right = Parse(reader.ReadLine()!);
 			reader.ReadLine();
 
 			pairs.Add((left, right));
@@ -152,24 +152,19 @@ public class Day13
 	{
 		public static PacketNodeComparer Standard = new PacketNodeComparer();
 
-		public int Compare(IPacketNode left, IPacketNode right)
+		public int Compare(IPacketNode? left, IPacketNode? right)
 		{
 			if (ReferenceEquals(left, right))
 				return 0;
 
-			if (left is PacketNumber a && right is PacketNumber b)
-				return a.Value.CompareTo(b.Value);
-
-			if (left is PacketNumber l && right is PacketList)
-				return this.Compare(l.Promote(), right);
-
-			if (left is PacketList && right is PacketNumber r)
-				return this.Compare(left, r.Promote());
-
-			if (left is PacketList x && right is PacketList y)
-				return this.CompareLists(x, y);
-
-			return 0;
+			return left switch
+			{
+				PacketNumber a when right is PacketNumber b => a.Value.CompareTo(b.Value),
+				PacketNumber l when right is PacketList => this.Compare(l.Promote(), right),
+				PacketList when right is PacketNumber r => this.Compare(left, r.Promote()),
+				PacketList x when right is PacketList y => this.CompareLists(x, y),
+				_ => 0
+			};
 		}
 
 		private int CompareLists(PacketList left, PacketList right)

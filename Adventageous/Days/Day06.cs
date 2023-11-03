@@ -10,7 +10,7 @@ public class Day06
 
 		while (!reader.EndOfStream)
 		{
-			this.Buffers.Add(reader.ReadLine());
+			this.Buffers.Add(reader.ReadLine()!);
 		}
 	}
 
