@@ -6,10 +6,20 @@ namespace Adventageous.Days;
 
 public class Day17
 {
+	private const long RockCount = 1_000_000_000_000;
+
 	private readonly IReadOnlyList<Jet> Jets;
 
 	private readonly RockGenerator generator = new RockGenerator();
 	private readonly Shaft shaft;
+
+	private readonly Dictionary<(int jetIndex, byte rockIndex), (long Step, int Rock, int Height)> strikes =
+		new Dictionary<(int jetIndex, byte rockIndex), (long Step, int Rock, int Height)>();
+
+	private HashSet<long> previouslyLoopedRocks = new HashSet<long>();
+
+	private (int jetIndex, byte rockIndex)? loopKey;
+	private (long Step, long Rock, int Height)? loopTerminus;
 
 	private long step = 0;
 
@@ -35,13 +45,61 @@ public class Day17
 
 	public long Second()
 	{
-		return long.MinValue;
+		while (this.loopKey is null)
+		{
+			this.Iterate();
+		}
+
+		if (this.loopKey is null)
+			return long.MinValue;
+		if (this.loopTerminus is not var (terminusStep, terminusRock, terminusHeight))
+			return long.MinValue;
+
+		Console.WriteLine($"Loop found at step {terminusStep:N0}, rock {terminusRock:N0}, height {terminusHeight:N0}");
+		var loopStart = this.strikes[this.loopKey.Value];
+		Console.WriteLine($"Loop starts at step {loopStart.Step:N0}, rock {loopStart.Rock:N0}, height {loopStart.Height:N0}");
+
+		var finalRockMinusOffset = RockCount - loopStart.Rock;
+		var loopInRocks = terminusRock - loopStart.Rock;
+		var loopHeight = terminusHeight - loopStart.Height;
+
+		var (loops, remainder) = Math.DivRem(finalRockMinusOffset, loopInRocks);
+
+		var targetRock = loopStart.Rock + remainder;
+		var targetRockHeight = this.strikes.Values.FirstOrDefault(x => x.Rock == targetRock).Height;
+
+		return targetRockHeight + (loops * loopHeight) - 1; //Off by one?
 	}
 
 	private void Iterate()
 	{
-		var index = (int)(step++ % this.Jets.Count);
+		var current = this.step++;
+		var rock = this.generator.RocksGenerated - 1;
+		var index = (int)(current % this.Jets.Count);
 		this.shaft.Step(this.Jets[index]);
+
+		if (!this.shaft.JustSettled)
+			return;
+
+		var key = (index, this.generator.PreviousLoopIndex);
+		var value = (Step: current, Rock: rock, Height: this.shaft.Height);
+
+		var containsKey = this.strikes.ContainsKey(key);
+		var n = RockGenerator.Count * 2;
+		var lastNRocks = Interval.HalfOpen(rock - n, rock);
+
+		if (containsKey && lastNRocks.All(x => this.previouslyLoopedRocks.Contains(x)))
+		{
+			this.loopKey = key;
+			this.loopTerminus = value;
+		}
+		else if (containsKey)
+		{
+			this.previouslyLoopedRocks.Add(rock);
+			this.strikes[key] = value;
+		}
+		else
+			this.strikes.Add(key, value);
 	}
 
 	private static Jet? Map(char c) => c switch
@@ -103,7 +161,7 @@ public class Day17
 			this.JustSettled = true;
 		}
 
-		public bool IsOpen(Point point)
+		private bool IsOpen(Point point)
 		{
 			if (point.X < 0)
 				return false;
@@ -112,7 +170,7 @@ public class Day17
 			if (point.X >= Width)
 				return false;
 
-			return !tower.Contains(point);
+			return !this.tower.Contains(point);
 		}
 
 		public void Print()
@@ -125,7 +183,7 @@ public class Day17
 		{
 			var rockBody = this.current.Body.ToHashSet();
 
-			var maxHeight = rockBody?.Max(x => x.Y) ?? (this.Height + Overhead);
+			var maxHeight = rockBody.Max(x => x.Y);
 			const int lineWidth = Width + 4;
 
 			var builder = new StringBuilder(maxHeight * lineWidth);
@@ -266,26 +324,42 @@ public class Day17
 	{
 		private static IReadOnlySet<Point>[] Shapes = new[]
 		{
-			@"####",
-			@".#.
-			  ###
-			  .#.",
-			@"..#
-			  ..#
-			  ###",
-			@"#
-			  #
-			  #
-			  #",
-			@"##
-			  ##"
+			"####",
+
+			"""
+			.#.
+			###
+			.#.
+			""",
+
+			"""
+			..#
+			..#
+			###
+			""",
+
+			"""
+			#
+			#
+			#
+			#
+			""",
+
+			"""
+			##
+			##
+			"""
 		}.Select(Rock.Parse).ToArray();
+
+		public static byte Count => (byte)Shapes.Length;
 
 		public RockGenerator()
 		{
 		}
 
 		public int RocksGenerated { get; private set; } = 0;
+
+		public byte PreviousLoopIndex => (byte)((this.RocksGenerated - 1) % Count);
 
 		public Rock Next(Point position)
 		{
