@@ -9,9 +9,9 @@ public readonly struct Point : IEquatable<Point>
 		this.X = x;
 		this.Y = y;
 	}
-	
+
 	public readonly int X;
-	
+
 	public readonly int Y;
 
 	public override int GetHashCode()
@@ -65,7 +65,7 @@ public readonly struct Point : IEquatable<Point>
 	#endregion
 
 	#region Constant Points
-	
+
 	public static readonly Point Origin = (0, 0);
 
 	#endregion
@@ -106,6 +106,9 @@ public readonly struct Point : IEquatable<Point>
 	public static Point operator -(Point left, Point right) =>
 		(left.X - right.X, left.Y - right.Y);
 
+	public static Point operator *(int scalar, Point self) =>
+		(scalar * self.X, scalar * self.Y);
+
 	#endregion
 
 	#region Transformations
@@ -121,12 +124,12 @@ public readonly struct Point : IEquatable<Point>
 
 	public bool Equals(Point other)
 	{
-		return X == other.X && Y == other.Y;
+		return this.X == other.X && this.Y == other.Y;
 	}
 
 	public override bool Equals(object? obj)
 	{
-		return obj is Point other && Equals(other);
+		return obj is Point other && this.Equals(other);
 	}
 
 	public static bool operator ==(Point left, Point right)
@@ -164,6 +167,10 @@ public readonly struct Point : IEquatable<Point>
 
 		return h + v;
 	}
+
+	public bool IsAdjacent(Point that) => this.TaxiCabNeighbors.Contains(that);
+
+	public static bool AreAdjacent(Point left, Point right) => left.IsAdjacent(right);
 
 	#endregion
 }
