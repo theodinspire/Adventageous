@@ -28,12 +28,12 @@ public class Day02
 
 	public int First()
 	{
-		return this.Rounds.Select(ScoreRoundFirst).Total();
+		return this.Rounds.Select(ScoreRoundFirst).Sum();
 	}
 
 	public int Second()
 	{
-		return this.Rounds.Select(ScoreRoundSecond).Total();
+		return this.Rounds.Select(ScoreRoundSecond).Sum();
 	}
 
 	private static Outcome GetOutcome((Hand their, Hand me) round)

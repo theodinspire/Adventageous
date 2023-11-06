@@ -36,15 +36,15 @@ namespace Adventageous.Days
 
 		public int First()
 		{
-			return inventories.Select(x => x.Total()).Max();
+			return inventories.Select(x => x.Sum()).Max();
 		}
 
 		public int Second()
 		{
-			return inventories.Select(x => x.Total())
+			return inventories.Select(x => x.Sum())
 				.OrderDescending()
 				.Take(3)
-				.Total();
+				.Sum();
 		}
 	}
 }

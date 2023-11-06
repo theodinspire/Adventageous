@@ -24,12 +24,12 @@ public class Day03
 	public int First()
 	{
 		var foo = inventories.Select(Halve).Select(PairPriority).ToList();
-		return foo.Total();
+		return foo.Sum();
 	}
 
 	public int Second()
 	{
-		return this.inventories.GroupInto(3).Select(GetBadge).Select(GetPriority).Total();
+		return this.inventories.GroupInto(3).Select(GetBadge).Select(GetPriority).Sum();
 	}
 
 	private static (string Left, string Right) Halve(string s)
@@ -45,7 +45,7 @@ public class Day03
 
 		var intersection = left.Items.Intersect(right.Items);
 		return intersection.Select(GetPriority)
-			.Total();
+			.Sum();
 	}
 
 	private static int GetPriority(char item)

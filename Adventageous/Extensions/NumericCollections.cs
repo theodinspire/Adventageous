@@ -4,10 +4,8 @@ namespace Adventageous.Extensions
 {
 	public static class NumericCollections
 	{
-		public static TNumber Total<TNumber>(this IEnumerable<TNumber> self)
-			where TNumber : IAdditiveIdentity<TNumber, TNumber>, IAdditionOperators<TNumber, TNumber, TNumber>
-		{
-			return self.Aggregate(TNumber.AdditiveIdentity, (left, right) => left + right);
-		}
+		public static TNumber Product<TNumber>(this IEnumerable<TNumber> self)
+			where TNumber : IMultiplicativeIdentity<TNumber, TNumber>, IMultiplyOperators<TNumber, TNumber, TNumber> =>
+			self.Aggregate(TNumber.MultiplicativeIdentity, (left, right) => left * right);
 	}
 }
