@@ -1,13 +1,13 @@
 ﻿using Adventageous.Days;
 var exampleFile =
-	File.OpenRead(Path.Combine("Data", "Example", "19a"));
+	File.OpenRead(Path.Combine("Data", "Example", "20a"));
 
 var actualFile =
-	File.OpenRead(Path.Combine("Data", "Actual", "19"));
+	File.OpenRead(Path.Combine("Data", "Actual", "20"));
 
-var example = new Day19(exampleFile);
+var example = new Day20(exampleFile);
 exampleFile.Dispose();
-var actual = new Day19(actualFile);
+var actual = new Day20(actualFile);
 actualFile.Dispose();
 
 
