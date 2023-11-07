@@ -7,6 +7,8 @@ public partial class Day21
 {
 	private readonly Dictionary<string, Lazy<long>> Monkeys = new Dictionary<string, Lazy<long>>();
 
+	private readonly Dictionary<string, INode> Tree = new Dictionary<string, INode>();
+
 	public Day21(Stream input)
 	{
 		using var reader = new StreamReader(input);
@@ -56,4 +58,66 @@ public partial class Day21
 
 	[GeneratedRegex("(?<name>\\w{4}): (?:(?<number>\\-?\\d+)|(?:(?<left>\\w{4}) (?<operator>[\\-\\+\\*\\/]) (?<right>\\w{4})))")]
 	private static partial Regex Parser();
+
+	private interface INode
+	{
+		string Name { get; }
+
+		long ReturnValue();
+	}
+
+	private class IntegerNode : INode
+	{
+		private readonly long value;
+
+		public IntegerNode(string name, long value)
+		{
+			this.value = value;
+			this.Name = name;
+		}
+
+		public string Name { get; }
+
+		public long ReturnValue() => this.value;
+	}
+
+	private class OperationNode : INode
+	{
+		private readonly string operation;
+
+		public OperationNode(string name, INode left, INode right, string operation)
+		{
+			this.Name = name;
+			this.Left = left;
+			this.Right = right;
+
+			this.operation = operation;
+		}
+
+		public INode Left { get; }
+
+		public INode Right { get; }
+
+		public Func<long, long, long> Operation => this.operation switch
+		{
+			"+" => (l, r) => this.Left.ReturnValue() + this.Right.ReturnValue(),
+			"-" => (l, r) => this.Left.ReturnValue() - this.Right.ReturnValue(),
+			"*" => (l, r) => this.Left.ReturnValue() * this.Right.ReturnValue(),
+			"/" => (l, r) => this.Left.ReturnValue() + this.Right.ReturnValue(),
+			_ => throw new InvalidOperationException($"Cannot parse operation '{this.operation}'")
+		}
+
+		public Func<long, long, long> ReverseOperation => this.operation switch
+		{
+			"+" => (l, r) => this.Left.ReturnValue() - this.Right.ReturnValue(),
+			"-" => (l, r) => this.Left.ReturnValue() + this.Right.ReturnValue(),
+			"*" => (l, r) => this.Left.ReturnValue() / this.Right.ReturnValue(),
+			"/" => (l, r) => this.Left.ReturnValue() * this.Right.ReturnValue(),
+			_ => throw new InvalidOperationException($"Cannot parse operation '{this.operation}'")
+		}
+
+		public string Name { get; }
+
+		public long ReturnValue() => this.Operation(this.Left.ReturnValue(), this.Right.ReturnValue());
+	}
 }
