@@ -1,4 +1,6 @@
-﻿namespace Adventageous.Extensions;
+﻿using System.Runtime.CompilerServices;
+
+namespace Adventageous.Extensions;
 
 public static class StringExtensions
 {
@@ -13,4 +15,17 @@ public static class StringExtensions
 	}
 
 	public delegate bool Parser<T>(string value, out T result);
+
+	public static IEnumerable<int> AllIndicesOfAny(this string self, char[] characters)
+	{
+		var index = 0;
+		do
+		{
+			var next = self.IndexOfAny(characters, index);
+			if (next >= 0)
+				yield return next;
+			index = next + 1;
+		}
+		while (index > 0);
+	}
 }

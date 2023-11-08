@@ -62,6 +62,12 @@ public readonly struct Point : IEquatable<Point>
 
 	public static implicit operator Point((int x, int y) tuple) => new Point(tuple.x, tuple.y);
 
+	public void Deconstruct(out int x, out int y)
+	{
+		x = this.X;
+		y = this.Y;
+	}
+
 	#endregion
 
 	#region Constant Points

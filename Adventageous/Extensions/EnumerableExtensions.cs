@@ -1,7 +1,11 @@
-﻿namespace Adventageous.Extensions;
+﻿using Adventageous.Enums;
+
+namespace Adventageous.Extensions;
 
 public static class EnumerableExtensions
 {
+	#region Group
+
 	public static IEnumerable<IEnumerable<T>> GroupInto<T>(this IEnumerable<T> collection, int count)
 	{
 		using var enumerator = collection.GetEnumerator();
@@ -20,6 +24,10 @@ public static class EnumerableExtensions
 		}
 		while ( count > 0 && enumerator.MoveNext());
 	}
+
+	#endregion
+
+	#region SelectNotNull
 
 	public static IEnumerable<T> SelectNotNull<T>(this IEnumerable<T?> self)
 		where T : struct =>
@@ -43,4 +51,13 @@ public static class EnumerableExtensions
 		where TSource : struct
 		where TResult : struct =>
 		self.Select(selector).SelectNotNull();
+
+	#endregion
+
+	#region Indexed
+
+	public static IEnumerable<(T Item, int Index)> Indexed<T>(this IEnumerable<T> self, int start = 0) =>
+		self.Select((x, i) => (Item: x, Index: i + start));
+
+	#endregion
 }
