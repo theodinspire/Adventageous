@@ -1,11 +1,14 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Diagnostics;
+using System.Text.RegularExpressions;
 using Adventageous.Extensions;
 
 namespace Adventageous.Days;
 
 public partial class Day21
 {
-	private readonly Dictionary<string, Lazy<long>> Monkeys = new Dictionary<string, Lazy<long>>();
+	private static string RootName = "root";
+
+	private static string HumanName = "humn";
 
 	private readonly Dictionary<string, INode> Tree = new Dictionary<string, INode>();
 
@@ -13,6 +16,8 @@ public partial class Day21
 	{
 		using var reader = new StreamReader(input);
 		var parser = Parser();
+
+		var seeds = new HashSet<OperationNodeSeed>();
 
 		foreach (var line in reader.Lines())
 		{
@@ -24,36 +29,56 @@ public partial class Day21
 			if (match.Groups["number"].Success)
 			{
 				if (long.TryParse(match.Groups["number"].Value, out var number))
-					this.Monkeys.Add(name, new Lazy<long>(number));
+				{
+					this.Tree.Add(name, new IntegerNode(name, number));
+				}
 				continue;
 			}
 
-			var left = match.Groups["left"].Value;
-			var right = match.Groups["right"].Value;
-			
-			var op = match.Groups["operator"].Value;
+			if (!match.Groups["operator"].Success)
+				continue;
 
-			Func<long> operation = op switch
+			var seed = new OperationNodeSeed(name, match.Groups["left"].Value, match.Groups["right"].Value, match.Groups["operator"].Value);
+			seeds.Add(seed);
+		}
+
+		while (seeds.Count > 0)
+		{
+			var nextLevel = seeds.Where(x => this.Tree.ContainsKey(x.LeftName) && this.Tree.ContainsKey(x.RightName)).ToHashSet();
+			seeds.ExceptWith(nextLevel);
+
+			foreach (var item in nextLevel)
 			{
-				"+" => () => this.Monkeys[left].Value + this.Monkeys[right].Value,
-				"-" => () => this.Monkeys[left].Value - this.Monkeys[right].Value,
-				"*" => () => this.Monkeys[left].Value * this.Monkeys[right].Value,
-				"/" => () => this.Monkeys[left].Value / this.Monkeys[right].Value,
-				_ => throw new InvalidOperationException($"Cannot parse operation '{op}'")
-			};
+				var left = this.Tree[item.LeftName];
+				var right = this.Tree[item.RightName];
 
-			this.Monkeys.Add(name, new Lazy<long>(operation));
+				var node = new OperationNode(item.Name, left, right, item.Operation);
+				this.Tree.Add(item.Name, node);
+			}
 		}
 	}
 
 	public long First()
 	{
-		return this.Monkeys["root"].Value;
+		return this.Tree[RootName].ReturnValue();
 	}
 
-	public int Second()
+	public long Second()
 	{
-		return int.MinValue;
+		var r = this.Tree[RootName];
+		if (r is not OperationNode root)
+			throw new InvalidOperationException("Root node must be an operation");
+
+		var x = root.Left.HasHuman ? root.Right.ReturnValue() : root.Left.ReturnValue();
+		var next = root.Left.HasHuman ? root.Left : root.Right;
+
+		while (next is OperationNode node)
+		{
+			next = node.Left.HasHuman ? node.Left : node.Right;
+			x = node.SolveForHumanBranch(x);
+		}
+
+		return x;
 	}
 
 	[GeneratedRegex("(?<name>\\w{4}): (?:(?<number>\\-?\\d+)|(?:(?<left>\\w{4}) (?<operator>[\\-\\+\\*\\/]) (?<right>\\w{4})))")]
@@ -63,9 +88,12 @@ public partial class Day21
 	{
 		string Name { get; }
 
+		bool HasHuman { get; }
+
 		long ReturnValue();
 	}
 
+	[DebuggerDisplay("{Name}: {value}")]
 	private class IntegerNode : INode
 	{
 		private readonly long value;
@@ -74,16 +102,22 @@ public partial class Day21
 		{
 			this.value = value;
 			this.Name = name;
+
+			this.HasHuman = name == HumanName;
 		}
 
 		public string Name { get; }
 
+		public bool HasHuman { get; }
+
 		public long ReturnValue() => this.value;
 	}
 
+	[DebuggerDisplay("{Name}: {Left.Name} {operation} {Right.Name} => {value}")]
 	private class OperationNode : INode
 	{
 		private readonly string operation;
+		private readonly long value;
 
 		public OperationNode(string name, INode left, INode right, string operation)
 		{
@@ -92,6 +126,9 @@ public partial class Day21
 			this.Right = right;
 
 			this.operation = operation;
+			this.HasHuman = left.HasHuman || right.HasHuman;
+
+			this.value = this.Operation(left.ReturnValue(), right.ReturnValue());
 		}
 
 		public INode Left { get; }
@@ -100,24 +137,50 @@ public partial class Day21
 
 		public Func<long, long, long> Operation => this.operation switch
 		{
-			"+" => (l, r) => this.Left.ReturnValue() + this.Right.ReturnValue(),
-			"-" => (l, r) => this.Left.ReturnValue() - this.Right.ReturnValue(),
-			"*" => (l, r) => this.Left.ReturnValue() * this.Right.ReturnValue(),
-			"/" => (l, r) => this.Left.ReturnValue() + this.Right.ReturnValue(),
+			"+" => (l, r) => l + r,
+			"-" => (l, r) => l - r,
+			"*" => (l, r) => l * r,
+			"/" => (l, r) => l / r,
 			_ => throw new InvalidOperationException($"Cannot parse operation '{this.operation}'")
-		}
-
-		public Func<long, long, long> ReverseOperation => this.operation switch
-		{
-			"+" => (l, r) => this.Left.ReturnValue() - this.Right.ReturnValue(),
-			"-" => (l, r) => this.Left.ReturnValue() + this.Right.ReturnValue(),
-			"*" => (l, r) => this.Left.ReturnValue() / this.Right.ReturnValue(),
-			"/" => (l, r) => this.Left.ReturnValue() * this.Right.ReturnValue(),
-			_ => throw new InvalidOperationException($"Cannot parse operation '{this.operation}'")
-		}
+		};
 
 		public string Name { get; }
 
-		public long ReturnValue() => this.Operation(this.Left.ReturnValue(), this.Right.ReturnValue());
+		public bool HasHuman { get; }
+
+		public long ReturnValue() => this.value;
+
+		public long SolveForHumanBranch(long x)
+		{
+			if (!this.HasHuman)
+				throw new InvalidOperationException("Cannot solve for human, human not under this node");
+			return this.Left.HasHuman ? this.SolveForLeft(x) : this.SolveForRight(x);
+		}
+
+		public long SolveForLeft(long x)
+		{
+			return this.operation switch
+			{
+				"+" => x - this.Right.ReturnValue(),
+				"-" => x + this.Right.ReturnValue(),
+				"*" => x / this.Right.ReturnValue(),
+				"/" => x * this.Right.ReturnValue(),
+				_ => throw new InvalidOperationException($"Cannot parse operation '{this.operation}'")
+			};
+		}
+
+		public long SolveForRight(long x)
+		{
+			return this.operation switch
+			{
+				"+" => x - this.Left.ReturnValue(),
+				"-" => this.Left.ReturnValue() - x,
+				"*" => x / this.Left.ReturnValue(),
+				"/" => this.Left.ReturnValue() / x,
+				_ => throw new InvalidOperationException($"Cannot parse operation '{this.operation}'")
+			};
+		}
 	}
+
+	private readonly record struct OperationNodeSeed(string Name, string LeftName, string RightName, string Operation);
 }
