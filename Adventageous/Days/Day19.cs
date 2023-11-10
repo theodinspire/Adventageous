@@ -45,7 +45,6 @@ public partial class Day19
 		queue.Enqueue(initialState);
 
 		var maxYield = 0;
-		var iteration = 0;
 
 		while (queue.Count > 0)
 		{

@@ -99,6 +99,18 @@ public readonly struct Point : IEquatable<Point>
 		_ => throw new ArgumentOutOfRangeException(nameof(direction), direction, null)
 	};
 
+	public Point Over(Direction direction, int units = 1)
+	{
+		return direction switch
+		{
+			Direction.Up => this + (0, units),
+			Direction.Right => this + (units, 0),
+			Direction.Down => this - (0, units),
+			Direction.Left => this - (units, 0),
+			_ => throw new ArgumentOutOfRangeException(nameof(direction))
+		};
+	}
+
 	#endregion
 
 	#region Operators

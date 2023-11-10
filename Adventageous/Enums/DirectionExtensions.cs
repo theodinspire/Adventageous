@@ -8,10 +8,6 @@ public static class DirectionExtensions
 		Direction.Down => Direction.Left,
 		Direction.Left => Direction.Up,
 		Direction.Right => Direction.Down,
-		Direction.UpRight => Direction.DownRight,
-		Direction.DownRight => Direction.DownLeft,
-		Direction.DownLeft => Direction.UpLeft,
-		Direction.UpLeft => Direction.UpRight,
 		_ => throw new ArgumentOutOfRangeException(nameof(self), self, null)
 	};
 
@@ -21,10 +17,6 @@ public static class DirectionExtensions
 		Direction.Down => Direction.Right,
 		Direction.Left => Direction.Down,
 		Direction.Right => Direction.Up,
-		Direction.UpRight => Direction.UpLeft,
-		Direction.DownRight => Direction.UpRight,
-		Direction.DownLeft => Direction.DownRight,
-		Direction.UpLeft => Direction.DownLeft,
 		_ => throw new ArgumentOutOfRangeException(nameof(self), self, null)
 	};
 
@@ -33,5 +25,14 @@ public static class DirectionExtensions
 		Enums.Turn.Clockwise => self.TurnClockwise(),
 		Enums.Turn.Widdershins => self.TurnWiddershins(),
 		_ => throw new ArgumentOutOfRangeException(nameof(turn), turn, null)
+	};
+
+	public static Direction Opposite(this Direction self) => self switch
+	{
+		Direction.Up => Direction.Down,
+		Direction.Down => Direction.Up,
+		Direction.Left => Direction.Right,
+		Direction.Right => Direction.Left,
+		_ => throw new ArgumentOutOfRangeException(nameof(self), self, null)
 	};
 }
