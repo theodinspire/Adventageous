@@ -1,40 +1,42 @@
-﻿using System.Net.Sockets;
-
-namespace Adventageous.Utilities;
+﻿namespace Adventageous.Utilities;
 
 public class Counter<T>
-	where T : notnull
+	where T: IEquatable<T>
 {
-	private readonly Dictionary<T, int> counts;
+	private readonly Dictionary<T, int> container;
 
 	public Counter()
 	{
-		this.counts = new Dictionary<T, int>();
+		this.container = new Dictionary<T, int>();
 	}
 
-	public Counter(IEnumerable<T> collection)
+	public Counter(IEnumerable<T> items)
 	{
-		this.counts = new Dictionary<T, int>();
-		
-		foreach (var item in collection)
+		this.container = new Dictionary<T, int>();
+		foreach (var item in items)
 		{
-			this.Add(item);
+			if (this.container.ContainsKey(item))
+				this.container[item] = this.container[item] += 1;
+			else
+				this.container.Add(item, 1);
 		}
 	}
 
-	public IEnumerable<T> Items => this.counts.Where(pair => pair.Value > 0).Select(pair => pair.Key);
-
-	public int GetCount(T item)
+	public int this[T item]
 	{
-		return this.counts.TryGetValue(item, out var c) ? c : 0;
+		get => this.container.TryGetValue(item, out var count) ? count : 0;
+		private set => this.container[item] = value;
 	}
 
-	public int Add(T item, int count = 1)
-	{
-		var total = this.GetCount(item) + count;
-		this.counts[item] = total;
-		return total;
-	}
+	public IEnumerable<T> Items => this.container.Where(p => p.Value != 0).Select(p => p.Key);
 
-	public Dictionary<T, int> GetAllCounts() => this.counts.ToDictionary(pair => pair.Key, pair => pair.Value);
+	/// <summary>
+	/// Adds a count of the item to the counter.
+	/// </summary>
+	/// <param name="item">The item to be counted.</param>
+	/// <returns>The new count of the item.</returns>
+	public int Count(T item)
+	{
+		return ++this[item];
+	}
 }
