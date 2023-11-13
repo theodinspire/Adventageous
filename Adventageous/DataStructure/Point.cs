@@ -90,6 +90,9 @@ public readonly struct Point : IEquatable<Point>
 
 	public Point[] TaxiCabNeighbors => new[] { this.Up, this.Right, this.Down, this.Left };
 
+	public Point[] TaxiCabNeighborsAndSelf =>
+		new[] { this.Up, this.Right, this.Down, this.Left, this };
+
 	public Point this[Direction direction] => direction switch
 	{
 		Direction.Up    => this.Up,
