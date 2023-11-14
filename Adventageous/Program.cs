@@ -2,9 +2,9 @@
 
 // Example
 var exampleFile =
-	File.OpenRead(Path.Combine("Data", "Example", "24a"));
+	File.OpenRead(Path.Combine("Data", "Example", "25a"));
 
-var example = new Day24(exampleFile);
+var example = new Day25(exampleFile);
 exampleFile.Dispose();
 
 Console.WriteLine("Example:");
@@ -14,8 +14,8 @@ Console.WriteLine($"2nd: {example.Second()}");
 
 // Actual
 var actualFile =
-	File.OpenRead(Path.Combine("Data", "Actual", "24"));
-var actual = new Day24(actualFile);
+	File.OpenRead(Path.Combine("Data", "Actual", "25"));
+var actual = new Day25(actualFile);
 actualFile.Dispose();
 
 Console.WriteLine();
